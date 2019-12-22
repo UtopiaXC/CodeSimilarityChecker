@@ -1,16 +1,23 @@
+ï»¿/*
+Code Similarity Checker
+Github: https://github.com/UtopiaXC/CodeSimilarityChecker
+IDE Visual Studio 2019 Community
+UtopiaXC Â©2019 All Rights Reserved
+*/
+
 #include<iostream>
 
 using namespace std;
 
-//É¢ÁÐ±íÀà£¬²ÉÓÃÏßÐÔÌ½²â
+//æ•£åˆ—è¡¨ç±»ï¼Œé‡‡ç”¨çº¿æ€§æŽ¢æµ‹
 class HashMap {
-	//Éè¶¨É¢ÁÐ±í×î´óÖµ
+	//è®¾å®šæ•£åˆ—è¡¨æœ€å¤§å€¼
 #define HashMax 100
 private:
 	string keys[HashMax];
 	int value[HashMax];
 	int count;
-	//É¢ÁÐº¯Êý
+	//æ•£åˆ—å‡½æ•°
 	int Hash(string keyword) {
 		char key1 = keyword.at(0);
 		char key2 = keyword.at(keyword.length() - 1);
@@ -18,7 +25,7 @@ private:
 	}
 
 public:
-	//Ä¬ÈÏ¹¹Ôì
+	//é»˜è®¤æž„é€ 
 	HashMap() {
 		for (int i = 0; i < HashMax; i++) {
 			keys[i] = "";
@@ -27,7 +34,7 @@ public:
 		}
 	}
 
-	//ÖØÔØ¹¹Ôì£¬½«¹Ø¼ü×Ö´æÈëÉ¢ÁÐ±í
+	//é‡è½½æž„é€ ï¼Œå°†å…³é”®å­—å­˜å…¥æ•£åˆ—è¡¨
 	HashMap(string keywords[], int count) {
 		for (int i = 0; i < HashMax; i++) {
 			keys[i] = "";
@@ -35,7 +42,7 @@ public:
 		}
 		for (int i = 0; i < count; i++) {
 			int key = Hash(keywords[i]);
-			//ÏßÐÔÌ½²â
+			//çº¿æ€§æŽ¢æµ‹
 			while (keys[key] != "")
 				key++;
 			keys[key] = keywords[i];
@@ -44,12 +51,12 @@ public:
 		this->count = count;
 	}
 
-	//½«µ¥´ÊÉèÖÃÈëÉ¢ÁÐ±í
+	//å°†å•è¯è®¾ç½®å…¥æ•£åˆ—è¡¨
 	bool setHash(string keywords) {
 		if (keywords == "" || count >= HashMax)
 			return false;
 		int key = Hash(keywords);
-		//ÏßÐÔÌ½²â
+		//çº¿æ€§æŽ¢æµ‹
 		while (keys[key] != "")
 			key++;
 		keys[key] = keywords;
@@ -57,15 +64,15 @@ public:
 		return true;
 	}
 
-	//ÏòÀàÍâ´«³öÉ¢ÁÐº¯Êý
+	//å‘ç±»å¤–ä¼ å‡ºæ•£åˆ—å‡½æ•°
 	int getHash(string keyword) {
 		return Hash(keyword);
 	}
 
-	//»ñÈ¡É¢ÁÐ±íkey¶ÔÓ¦µÄÖµ
+	//èŽ·å–æ•£åˆ—è¡¨keyå¯¹åº”çš„å€¼
 	int getValue(string keyword) {
 		int key = Hash(keyword);
-		//ÏßÐÔÌ½²â£¬Èç²»´æÔÚ·µ»Ø-1£¬¿ÉÓÃÀ´ÅÐ¶ÏÊÇ·ñÈë±í
+		//çº¿æ€§æŽ¢æµ‹ï¼Œå¦‚ä¸å­˜åœ¨è¿”å›ž-1ï¼Œå¯ç”¨æ¥åˆ¤æ–­æ˜¯å¦å…¥è¡¨
 		while (keys[key] != keyword) {
 			key++;
 			if (key > HashMax)
@@ -74,10 +81,10 @@ public:
 		return value[key];
 	}
 
-	//ÉèÖÃÉ¢ÁÐ±íkey¶ÔÓ¦µÄÖµ
+	//è®¾ç½®æ•£åˆ—è¡¨keyå¯¹åº”çš„å€¼
 	void setValue(string keyword, int value) {
 		int key = Hash(keyword);
-		//ÏßÐÔÌ½²â
+		//çº¿æ€§æŽ¢æµ‹
 		while (keys[key] != keyword) {
 			key++;
 			if (key > HashMax)
@@ -86,7 +93,7 @@ public:
 		this->value[key] = value;
 	}
 
-	//»ñÈ¡É¢ÁÐ±íÖÐ±£´æÏî¸öÊý
+	//èŽ·å–æ•£åˆ—è¡¨ä¸­ä¿å­˜é¡¹ä¸ªæ•°
 	int getCount() {
 		return this->count;
 	}

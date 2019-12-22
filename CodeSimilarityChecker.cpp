@@ -1,7 +1,7 @@
 ﻿/*
 Code Similarity Checker
 Github: https://github.com/UtopiaXC/CodeSimilarityChecker
-IDE Visual Studio 2019 社区版
+IDE Visual Studio 2019 Community
 UtopiaXC ©2019 All Rights Reserved
 */
 
