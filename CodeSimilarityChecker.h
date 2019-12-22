@@ -1,3 +1,10 @@
+﻿/*
+Code Similarity Checker
+Github: https://github.com/UtopiaXC/CodeSimilarityChecker
+IDE Visual Studio 2019 Community
+UtopiaXC ©2019 All Rights Reserved
+*/
+
 #pragma once
 //WINDOWS API
 #include <windows.h> 

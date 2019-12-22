@@ -1,9 +1,16 @@
+ï»¿/*
+Code Similarity Checker
+Github: https://github.com/UtopiaXC/CodeSimilarityChecker
+IDE Visual Studio 2019 ç¤¾åŒºç‰ˆ
+UtopiaXC Â©2019 All Rights Reserved
+*/
+
 #include "CodeSimilarityChecker.h"
 
 using namespace std;
 
-//È«¾Ö±äÁ¿
-const char ClassName[] = "CodeSimilarityChecker";//´°¿ÚÀàÃû
+//å…¨å±€å˜é‡
+const char ClassName[] = "CodeSimilarityChecker";//çª—å£ç±»å
 string cpp_keywords[48] = {
 "if","int","for","do","new","try",
 "asm","else","char","float","long","void",
@@ -13,7 +20,7 @@ string cpp_keywords[48] = {
 "friend","return","switch","public","union","goto",
 "operator","template","enum","private","volatile","this",
 "virtual","case","default","inline","protected","struct"
-};//C++±£Áô×Ö
+};//C++ä¿ç•™å­—
 
 string ID_Key[100] = {
 	"int","double","float","void","struct",
@@ -22,23 +29,23 @@ string ID_Key[100] = {
 	"template","bool" };
 int count_ID_Key = 15;
 
-int cpp_keywords_count = 48;//¼ì²éµÄC++±£Áô×Ö×ÜÊı
-string id[100];//ÓÃ»§±êÊ¶·û
-int id_count = 0;//±êÊ¶·û×ÜÊı
-HINSTANCE instance;//´°¿ÚÈ«¾Ö¾ä±ú
+int cpp_keywords_count = 48;//æ£€æŸ¥çš„C++ä¿ç•™å­—æ€»æ•°
+string id[100];//ç”¨æˆ·æ ‡è¯†ç¬¦
+int id_count = 0;//æ ‡è¯†ç¬¦æ€»æ•°
+HINSTANCE instance;//çª—å£å…¨å±€å¥æŸ„
 
-//º¯ÊıÉùÃ÷
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);//´°¿Ú»Øµ÷º¯Êı
+//å‡½æ•°å£°æ˜
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);//çª—å£å›è°ƒå‡½æ•°
 
-//É¢ÁĞ±íÀà£¬²ÉÓÃÏßĞÔÌ½²â
+//æ•£åˆ—è¡¨ç±»ï¼Œé‡‡ç”¨çº¿æ€§æ¢æµ‹
 class HashMap {
-	//Éè¶¨É¢ÁĞ±í×î´óÖµ
+	//è®¾å®šæ•£åˆ—è¡¨æœ€å¤§å€¼
 #define HashMax 100
 private:
 	string keys[HashMax];
 	int value[HashMax];
 	int count;
-	//É¢ÁĞº¯Êı
+	//æ•£åˆ—å‡½æ•°
 	int Hash(string keyword) {
 		char key1 = keyword.at(0);
 		char key2 = keyword.at(keyword.length() - 1);
@@ -46,7 +53,7 @@ private:
 	}
 
 public:
-	//Ä¬ÈÏ¹¹Ôì
+	//é»˜è®¤æ„é€ 
 	HashMap() {
 		for (int i = 0; i < HashMax; i++) {
 			keys[i] = "";
@@ -55,7 +62,7 @@ public:
 		}
 	}
 
-	//ÖØÔØ¹¹Ôì£¬½«¹Ø¼ü×Ö´æÈëÉ¢ÁĞ±í
+	//é‡è½½æ„é€ ï¼Œå°†å…³é”®å­—å­˜å…¥æ•£åˆ—è¡¨
 	HashMap(string keywords[], int count) {
 		for (int i = 0; i < HashMax; i++) {
 			keys[i] = "";
@@ -63,7 +70,7 @@ public:
 		}
 		for (int i = 0; i < count; i++) {
 			int key = Hash(keywords[i]);
-			//ÏßĞÔÌ½²â
+			//çº¿æ€§æ¢æµ‹
 			while (keys[key] != "")
 				key++;
 			keys[key] = keywords[i];
@@ -72,12 +79,12 @@ public:
 		this->count = count;
 	}
 
-	//½«µ¥´ÊÉèÖÃÈëÉ¢ÁĞ±í
+	//å°†å•è¯è®¾ç½®å…¥æ•£åˆ—è¡¨
 	bool setHash(string keywords) {
 		if (keywords == "" || count >= HashMax)
 			return false;
 		int key = Hash(keywords);
-		//ÏßĞÔÌ½²â
+		//çº¿æ€§æ¢æµ‹
 		while (keys[key] != "")
 			key++;
 		keys[key] = keywords;
@@ -85,15 +92,15 @@ public:
 		return true;
 	}
 
-	//ÏòÀàÍâ´«³öÉ¢ÁĞº¯Êı
+	//å‘ç±»å¤–ä¼ å‡ºæ•£åˆ—å‡½æ•°
 	int getHash(string keyword) {
 		return Hash(keyword);
 	}
 
-	//»ñÈ¡É¢ÁĞ±íkey¶ÔÓ¦µÄÖµ
+	//è·å–æ•£åˆ—è¡¨keyå¯¹åº”çš„å€¼
 	int getValue(string keyword) {
 		int key = Hash(keyword);
-		//ÏßĞÔÌ½²â£¬Èç²»´æÔÚ·µ»Ø-1£¬¿ÉÓÃÀ´ÅĞ¶ÏÊÇ·ñÈë±í
+		//çº¿æ€§æ¢æµ‹ï¼Œå¦‚ä¸å­˜åœ¨è¿”å›-1ï¼Œå¯ç”¨æ¥åˆ¤æ–­æ˜¯å¦å…¥è¡¨
 		while (keys[key] != keyword) {
 			key++;
 			if (key > HashMax)
@@ -102,10 +109,10 @@ public:
 		return value[key];
 	}
 
-	//ÉèÖÃÉ¢ÁĞ±íkey¶ÔÓ¦µÄÖµ
+	//è®¾ç½®æ•£åˆ—è¡¨keyå¯¹åº”çš„å€¼
 	void setValue(string keyword, int value) {
 		int key = Hash(keyword);
-		//ÏßĞÔÌ½²â
+		//çº¿æ€§æ¢æµ‹
 		while (keys[key] != keyword) {
 			key++;
 			if (key > HashMax)
@@ -114,52 +121,52 @@ public:
 		this->value[key] = value;
 	}
 
-	//»ñÈ¡É¢ÁĞ±íÖĞ±£´æÏî¸öÊı
+	//è·å–æ•£åˆ—è¡¨ä¸­ä¿å­˜é¡¹ä¸ªæ•°
 	int getCount() {
 		return this->count;
 	}
 
 };
 
-//½«½«ÎÄ¼ş·Ö½â¼ÆÈëÉ¢ÁĞ±í
+//å°†å°†æ–‡ä»¶åˆ†è§£è®¡å…¥æ•£åˆ—è¡¨
 HashMap setHashMap(string location, HashMap * hashMap_id) {
-	//½«É¢ÁĞ±í³õÊ¼»¯
+	//å°†æ•£åˆ—è¡¨åˆå§‹åŒ–
 	HashMap hashMap(cpp_keywords, cpp_keywords_count);
-	//ÈëÎÄ¼şÁ÷
+	//å…¥æ–‡ä»¶æµ
 	ifstream inStream;
 	inStream.open(location);
 	if (!inStream) {
-		string error = "´ò¿ªÎÄ¼ş´íÎó";
+		string error = "æ‰“å¼€æ–‡ä»¶é”™è¯¯";
 		throw error;
 	}
 
-	//±êÊ¶·ûÉÏÎÄÅĞ¶Ï
+	//æ ‡è¯†ç¬¦ä¸Šæ–‡åˆ¤æ–­
 	bool isIdentifier = false;
 	bool isSpecialId = false;
 	string identifier[100];
 	int flag = 0;
 	string code;
-	//°´ĞĞ¡¢¿Õ¸ñ¶ÁÈë
+	//æŒ‰è¡Œã€ç©ºæ ¼è¯»å…¥
 	while (!inStream.eof()) {
 		inStream >> code;
-		//½«¾äÎ²Ìí¼Ó¿Õ¸ñÀ´×÷Îªµ¥µ¥´Ê¾ä½áÊø·û
+		//å°†å¥å°¾æ·»åŠ ç©ºæ ¼æ¥ä½œä¸ºå•å•è¯å¥ç»“æŸç¬¦
 		code.append(" ");
-		//±£´æÕÒµ½µÄµ¥´Ê
+		//ä¿å­˜æ‰¾åˆ°çš„å•è¯
 		string word = "";
 		for (char temp : code) {
-			//ÅĞ¶ÏÊÇ·ñÎª×ÖÄ¸£¬Èç¹ûÊÇ£¬½«Æä²åÈëµ¥´ÊÄ©Î²
+			//åˆ¤æ–­æ˜¯å¦ä¸ºå­—æ¯ï¼Œå¦‚æœæ˜¯ï¼Œå°†å…¶æ’å…¥å•è¯æœ«å°¾
 			if ((temp > 96 && temp < 123) || (temp > 64 && temp < 91)) {
 				word.append(1, temp);
 			}
-			//Èç¹û²»ÊÇ£¬Ôò½áÊø¸Ãµ¥´Ê
+			//å¦‚æœä¸æ˜¯ï¼Œåˆ™ç»“æŸè¯¥å•è¯
 			else {
-				//ÅĞ¶Ï·Ö¸ô·ûºÅÊÇ·ñÎªÀ¨ºÅÀ´ÅÅ³ıº¯ÊıÃû
+				//åˆ¤æ–­åˆ†éš”ç¬¦å·æ˜¯å¦ä¸ºæ‹¬å·æ¥æ’é™¤å‡½æ•°å
 				if (isIdentifier && (temp == '{' || temp == '(')&&!isSpecialId) {
 					isIdentifier = false;
 					flag = 0;
 				}
 
-				//ÅĞ¶ÏÊÇ·ñ´æÔÚ±êÊ¶·ûÉÏÎÄ£¬´æÔÚÔò½«±êÊ¶·ûÈë±í
+				//åˆ¤æ–­æ˜¯å¦å­˜åœ¨æ ‡è¯†ç¬¦ä¸Šæ–‡ï¼Œå­˜åœ¨åˆ™å°†æ ‡è¯†ç¬¦å…¥è¡¨
 				if (isIdentifier && word.length() != 0) {
 					hashMap_id->getHash(word);
 					if (hashMap_id->getValue(word) != -1)
@@ -179,7 +186,7 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 
 				bool isKey = false;
 
-				//ÅĞ¶ÏÊÇ·ñÎª¿Õµ¥´Ê
+				//åˆ¤æ–­æ˜¯å¦ä¸ºç©ºå•è¯
 				if (word.length() != 0) {
 					int value = hashMap.getValue(word);
 					if (value != -1) {
@@ -189,7 +196,7 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 				}
 
 				bool isNickKey = false;
-				//Èç¹ûµ¥´ÊÎªÌØÊâ±£Áô×Ö£¬ÔòÈÏÎªÏÂÎÄÎª±êÊ¶·û»òº¯ÊıÃû
+				//å¦‚æœå•è¯ä¸ºç‰¹æ®Šä¿ç•™å­—ï¼Œåˆ™è®¤ä¸ºä¸‹æ–‡ä¸ºæ ‡è¯†ç¬¦æˆ–å‡½æ•°å
 
 				for (string temp:ID_Key) 
 					if (word == temp) {
@@ -207,7 +214,7 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 				}
 				word = "";
 
-				//Èç¹ûÊÇ·Ö¸î·ûºÅÔòÈÏÎªÏÂÒ»µ¥´Ê¿ÉÄÜÒ²ÊÇ±êÊ¶·û
+				//å¦‚æœæ˜¯åˆ†å‰²ç¬¦å·åˆ™è®¤ä¸ºä¸‹ä¸€å•è¯å¯èƒ½ä¹Ÿæ˜¯æ ‡è¯†ç¬¦
 				if (isIdentifier && (temp == ',' || temp == ' ')&&!isNickKey) {
 					isNickKey = false;
 					isIdentifier = true;
@@ -222,7 +229,7 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 	return hashMap;
 }
 
-//½«½á¹û±¨¸æ±£´æµ½ÎÄ¼ş
+//å°†ç»“æœæŠ¥å‘Šä¿å­˜åˆ°æ–‡ä»¶
 void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, string location) {
 	int edge1[100];
 	int edge2[100];
@@ -231,7 +238,7 @@ void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, str
 
 	ofstream fout(location);
 
-	fout << "±£Áô×Ö" << "," << "É¢ÁĞÖµ" << "," << "ÎÄ¼ş1¼ÆÊı" << "," << "ÎÄ¼ş2¼ÆÊı" << "," << "²î" << endl;
+	fout << "ä¿ç•™å­—" << "," << "æ•£åˆ—å€¼" << "," << "æ–‡ä»¶1è®¡æ•°" << "," << "æ–‡ä»¶2è®¡æ•°" << "," << "å·®" << endl;
 	for (int i = 0; i < cpp_keywords_count; i++) {
 		int value1 = hashMap1.getValue(cpp_keywords[i]);
 		int value2 = hashMap2.getValue(cpp_keywords[i]);
@@ -241,7 +248,7 @@ void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, str
 
 	}
 
-	fout << endl << "±êÊ¶·û" << "," << "É¢ÁĞÖµ" << "," << "ÎÄ¼ş1¼ÆÊı" << "," << "ÎÄ¼ş2¼ÆÊı" << "," << "²î" << endl;
+	fout << endl << "æ ‡è¯†ç¬¦" << "," << "æ•£åˆ—å€¼" << "," << "æ–‡ä»¶1è®¡æ•°" << "," << "æ–‡ä»¶2è®¡æ•°" << "," << "å·®" << endl;
 	for (int i = 0; i < id_count; i++) {
 		int id1_count = id1->getValue(id[i]);
 		int id2_count = id2->getValue(id[i]);
@@ -254,30 +261,30 @@ void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, str
 		fout << id[i] << "," << id1->getHash(id[i]) << "," << id1_count << "," << id2_count << "," << edge2[i] << endl;
 
 	}
-	fout << endl << "±£Áô×ÖÏòÁ¿¾àÀëÎª£º" << "," << sqrt(sum1) << endl;
-	fout << "±êÊ¶·ûÏòÁ¿¾àÀëÎª£º" << "," << sqrt(sum2) << endl;
+	fout << endl << "ä¿ç•™å­—å‘é‡è·ç¦»ä¸ºï¼š" << "," << sqrt(sum1) << endl;
+	fout << "æ ‡è¯†ç¬¦å‘é‡è·ç¦»ä¸ºï¼š" << "," << sqrt(sum2) << endl;
 	double result = (sqrt(sum1) * 3 + sqrt(sum2)) / 2;
-	fout << "×ÛºÏÆ½¾ù¾àÀëÎª£º" << "," << result << endl;
-	fout << "×ÛºÏÆ½¾ù¾àÀëÈ¨Îª£º" << "," << "±£Áô×ÖÏòÁ¿/±êÊ¶·ûÏòÁ¿=3/1" << endl << endl;
+	fout << "ç»¼åˆå¹³å‡è·ç¦»ä¸ºï¼š" << "," << result << endl;
+	fout << "ç»¼åˆå¹³å‡è·ç¦»æƒä¸ºï¼š" << "," << "ä¿ç•™å­—å‘é‡/æ ‡è¯†ç¬¦å‘é‡=3/1" << endl << endl;
 
-	//¸ÃÅĞ¶Ï³­Ï®Ëã·¨²»Ò»¶¨×¼È·£¬µ«ÒÑÍ¨¹ı²¿·ÖÊµÑé
+	//è¯¥åˆ¤æ–­æŠ„è¢­ç®—æ³•ä¸ä¸€å®šå‡†ç¡®ï¼Œä½†å·²é€šè¿‡éƒ¨åˆ†å®éªŒ
 	if (result == 0.0)
-		fout << "ÏàËÆ¶ÈÎª100%¡£" << endl << "Á½·İ´úÂëÍêÈ«Ò»ÖÂ¡£" << endl << "¿ÉÈÏÎªÍêÈ«³­Ï®¡£" << endl;
+		fout << "ç›¸ä¼¼åº¦ä¸º100%ã€‚" << endl << "ä¸¤ä»½ä»£ç å®Œå…¨ä¸€è‡´ã€‚" << endl << "å¯è®¤ä¸ºå®Œå…¨æŠ„è¢­ã€‚" << endl;
 	else if (result >= 0 && result < 2.5)
-		fout << "ÏàËÆ¶ÈÎª95%~100%¡£" << endl << "Á½·İ´úÂë»ù±¾Ò»ÖÂ¡£" << endl << "¿ÉÈÏÎªÍêÈ«³­Ï®" << endl;
+		fout << "ç›¸ä¼¼åº¦ä¸º95%~100%ã€‚" << endl << "ä¸¤ä»½ä»£ç åŸºæœ¬ä¸€è‡´ã€‚" << endl << "å¯è®¤ä¸ºå®Œå…¨æŠ„è¢­" << endl;
 	else if (result >= 2.5 && result < 5)
-		fout << "ÏàËÆ¶ÈÎª90%~95%¡£" << endl << "Á½·İ´úÂë´ó²¿·ÖÒ»ÖÂ¡£" << endl << "¿ÉÈÏÎª´æÔÚ³­Ï®" << endl;
+		fout << "ç›¸ä¼¼åº¦ä¸º90%~95%ã€‚" << endl << "ä¸¤ä»½ä»£ç å¤§éƒ¨åˆ†ä¸€è‡´ã€‚" << endl << "å¯è®¤ä¸ºå­˜åœ¨æŠ„è¢­" << endl;
 	else if (result >= 5 && result < 10)
-		fout << "ÏàËÆ¶ÈÎª80%~90%¡£" << endl << "Á½·İ´úÂë´æÔÚÒ»ÖÂ¡£" << endl << "¿ÉÄÜ´æÔÚ³­Ï®" << endl;
+		fout << "ç›¸ä¼¼åº¦ä¸º80%~90%ã€‚" << endl << "ä¸¤ä»½ä»£ç å­˜åœ¨ä¸€è‡´ã€‚" << endl << "å¯èƒ½å­˜åœ¨æŠ„è¢­" << endl;
 	else if (result >= 10 && result < 20)
-		fout << "ÏàËÆ¶ÈÎª60%~80%¡£" << endl << "Á½·İ´úÂë´æÔÚÏàËÆ¡£" << endl << "¿ÉÄÜ´æÔÚ½è¼ø" << endl;
+		fout << "ç›¸ä¼¼åº¦ä¸º60%~80%ã€‚" << endl << "ä¸¤ä»½ä»£ç å­˜åœ¨ç›¸ä¼¼ã€‚" << endl << "å¯èƒ½å­˜åœ¨å€Ÿé‰´" << endl;
 	else if (result > 20)
-		fout << "ÏàËÆ¶ÈĞ¡ÓÚ60%¡£" << endl << "Á½·İ´úÂë¿ÉÈÏÎª²»ÏàËÆ" << endl;
-	fout << endl << "±¾±¨¸æ½áÂÛÓĞ´ı¿¼Ö¤¡£" << endl << "Çë½áºÏ±íµ¥ÅĞ¶Ï¡£" << endl << "µ±´úÂëÁ¿Ô½´óÊ±¸Ã±¨¸æÔ½×¼È·¡£";
+		fout << "ç›¸ä¼¼åº¦å°äº60%ã€‚" << endl << "ä¸¤ä»½ä»£ç å¯è®¤ä¸ºä¸ç›¸ä¼¼" << endl;
+	fout << endl << "æœ¬æŠ¥å‘Šç»“è®ºæœ‰å¾…è€ƒè¯ã€‚" << endl << "è¯·ç»“åˆè¡¨å•åˆ¤æ–­ã€‚" << endl << "å½“ä»£ç é‡è¶Šå¤§æ—¶è¯¥æŠ¥å‘Šè¶Šå‡†ç¡®ã€‚";
 	fout.close();
 }
 
-//ÏàËÆ¶È¶Ô±È¹¦ÄÜº¯Êı
+//ç›¸ä¼¼åº¦å¯¹æ¯”åŠŸèƒ½å‡½æ•°
 bool function(TCHAR FILE1[], TCHAR FILE2[], TCHAR FILE_SAVE[]) {
 	try {
 		string location1 = FILE1;
@@ -295,13 +302,13 @@ bool function(TCHAR FILE1[], TCHAR FILE2[], TCHAR FILE_SAVE[]) {
 	}
 }
 
-//³ÌĞòÈë¿Ú
+//ç¨‹åºå…¥å£
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	WNDCLASSEX wc;
 	HWND hwnd;
 	MSG Msg;
 
-	//×¢²á´°Ìå
+	//æ³¨å†Œçª—ä½“
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = 0;
 	wc.lpfnWndProc = WndProc;
@@ -315,27 +322,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wc.lpszClassName = ClassName;
 	wc.hIconSm = LoadIcon(hInstance, (LPCSTR)IDI_ICON);
 	if (!RegisterClassEx(&wc)) {
-		MessageBox(NULL, "´°Ìå×¢²áÊ§°Ü", "´íÎó£¡", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "çª—ä½“æ³¨å†Œå¤±è´¥", "é”™è¯¯ï¼", MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
 	instance = hInstance;
 
-	//´´½¨´°Ìå
+	//åˆ›å»ºçª—ä½“
 	hwnd = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		ClassName,
-		"C++´úÂëÏàËÆ¶È¼ì²é³ÌĞò",
+		"C++ä»£ç ç›¸ä¼¼åº¦æ£€æŸ¥ç¨‹åº",
 		WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
 		CW_USEDEFAULT, CW_USEDEFAULT, 570, 420,
 		NULL, NULL, hInstance, NULL);
 	if (hwnd == NULL) {
-		MessageBox(NULL, "´°Ìå´´½¨Ê§°Ü", "´íÎó£¡", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "çª—ä½“åˆ›å»ºå¤±è´¥", "é”™è¯¯ï¼", MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
-	//Ö÷ÏûÏ¢Ñ­»·  
+	//ä¸»æ¶ˆæ¯å¾ªç¯  
 	while (GetMessage(&Msg, NULL, 0, 0) > 0) {
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
@@ -343,107 +350,107 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return Msg.wParam;
 }
 
-//»Øµ÷
+//å›è°ƒ
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
-		//¹Ø±ÕÏûÏ¢
+		//å…³é—­æ¶ˆæ¯
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		break;
-		//Ïú»ÙÏûÏ¢
+		//é”€æ¯æ¶ˆæ¯
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-		//´´½¨ÏûÏ¢
+		//åˆ›å»ºæ¶ˆæ¯
 	case WM_CREATE: {
 		HWND hdlg = CreateDialog(instance, MAKEINTRESOURCE(IDD_MAINSURFACE), hwnd, (DLGPROC)WndProc);
-		// ÏÔÊ¾¶Ô»°¿ò
+		// æ˜¾ç¤ºå¯¹è¯æ¡†
 		ShowWindow(hdlg, SW_SHOWNA);
 		break;
 	}
-					//ÃüÁîÏûÏ¢
+					//å‘½ä»¤æ¶ˆæ¯
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 
-			//¹Ø±Õ°´Å¥´¥·¢
+			//å…³é—­æŒ‰é’®è§¦å‘
 		case IDC_BUTTON_CLOSE:
 			PostQuitMessage(0);
 			break;
 
-			//È·ÈÏ°´Å¥´¥·¢
+			//ç¡®è®¤æŒ‰é’®è§¦å‘
 		case IDC_BUTTON_CONFIRM: {
-			//Í¨¹ıEDIT»ñµÃÎÄ¼şµØÖ·
+			//é€šè¿‡EDITè·å¾—æ–‡ä»¶åœ°å€
 			TCHAR file1[MAX_PATH];
 			GetDlgItemText(hwnd, IDC_EDIT1, file1, sizeof(file1));
 			TCHAR file2[MAX_PATH];
 			GetDlgItemText(hwnd, IDC_EDIT2, file2, sizeof(file2));
 
-			//Î´Ñ¡ÔñÎÄ¼ş´¥·¢
+			//æœªé€‰æ‹©æ–‡ä»¶è§¦å‘
 			if (file1[0] == _T('\0') || file2[0] == _T('\0')) {
-				MessageBox(hwnd, "ÇëÏÈÑ¡ÔñÎÄ¼ş", "ÌáĞÑ£¡", NULL);
+				MessageBox(hwnd, "è¯·å…ˆé€‰æ‹©æ–‡ä»¶", "æé†’ï¼", NULL);
 				break;
 			}
 
-			//±£´æ±¨¸æÎ»ÖÃ
-			TCHAR szPathName[MAX_PATH] = "´úÂëÏàËÆĞÔ¼ì²é½á¹û±¨¸æ.csv";
+			//ä¿å­˜æŠ¥å‘Šä½ç½®
+			TCHAR szPathName[MAX_PATH] = "ä»£ç ç›¸ä¼¼æ€§æ£€æŸ¥ç»“æœæŠ¥å‘Š.csv";
 			OPENFILENAME ofn = { OPENFILENAME_SIZE_VERSION_400 };//or  {sizeof (OPENFILENAME)}  
-			ofn.hwndOwner = GetForegroundWindow();			// ÓµÓĞÕß¾ä±ú	
-			ofn.lpstrFilter = TEXT("¶ººÅ·Ö¸ôÖµÎÄ¼ş(*.csv)");
+			ofn.hwndOwner = GetForegroundWindow();			// æ‹¥æœ‰è€…å¥æŸ„	
+			ofn.lpstrFilter = TEXT("é€—å·åˆ†éš”å€¼æ–‡ä»¶(*.csv)");
 			ofn.lpstrFile = szPathName;
 			ofn.nMaxFile = sizeof(szPathName);
-			ofn.lpstrTitle = TEXT("±£´æ±¨¸æ");
-			ofn.Flags = OFN_OVERWRITEPROMPT;		// ¸²¸ÇÌáÊ¾
+			ofn.lpstrTitle = TEXT("ä¿å­˜æŠ¥å‘Š");
+			ofn.Flags = OFN_OVERWRITEPROMPT;		// è¦†ç›–æç¤º
 			BOOL bOk = GetSaveFileName(&ofn);
 			if (!bOk) {
 				return FALSE;
 			}
 
-			//¼ì²éÊÇ·ñ³É¹¦±£´æ
+			//æ£€æŸ¥æ˜¯å¦æˆåŠŸä¿å­˜
 			if (!function(file1, file2, szPathName))
-				MessageBox(hwnd, "Ô´ÂëÎÄ¼ş´ò¿ªÊ§°Ü£¡", "´íÎó£¡", NULL);
+				MessageBox(hwnd, "æºç æ–‡ä»¶æ‰“å¼€å¤±è´¥ï¼", "é”™è¯¯ï¼", NULL);
 			else {
-				MessageBox(hwnd, "ÒÑµ¼³ö±¨¸æ£¬±¾±¨¸æ½áÂÛÓĞ´ı¿¼Ö¤£¬Çë½áºÏ±íµ¥ÅĞ¶Ï¡£\nµ±´úÂëÁ¿Ô½´óÊ±¸Ã±¨¸æÔ½×¼È·¡£", "³É¹¦£¡", NULL);
+				MessageBox(hwnd, "å·²å¯¼å‡ºæŠ¥å‘Šï¼Œæœ¬æŠ¥å‘Šç»“è®ºæœ‰å¾…è€ƒè¯ï¼Œè¯·ç»“åˆè¡¨å•åˆ¤æ–­ã€‚\nå½“ä»£ç é‡è¶Šå¤§æ—¶è¯¥æŠ¥å‘Šè¶Šå‡†ç¡®ã€‚", "æˆåŠŸï¼", NULL);
 			}
 			break;
 		}
 
-								 //ÎÄ¼ş1ä¯ÀÀ°´Å¥´¥·¢
+								 //æ–‡ä»¶1æµè§ˆæŒ‰é’®è§¦å‘
 		case IDC_BUTTON1: {
-			//ÎÄ¼şÑ¡Ôñ½á¹¹Ìå
+			//æ–‡ä»¶é€‰æ‹©ç»“æ„ä½“
 			OPENFILENAME opfn;
-			opfn.lpstrTitle = TEXT("ÇëÑ¡ÔñÔ´ÂëÎÄ¼ş");
-			WCHAR strFilename[MAX_PATH];//´æ·ÅÎÄ¼şÃû
-			//³õÊ¼»¯
+			opfn.lpstrTitle = TEXT("è¯·é€‰æ‹©æºç æ–‡ä»¶");
+			WCHAR strFilename[MAX_PATH];//å­˜æ”¾æ–‡ä»¶å
+			//åˆå§‹åŒ–
 			ZeroMemory(&opfn, sizeof(OPENFILENAME));
-			opfn.lStructSize = sizeof(OPENFILENAME);//½á¹¹Ìå´óĞ¡
-			//ÉèÖÃ¹ıÂË
-			opfn.lpstrFilter = "C++Ô´ÎÄ¼ş\0*.cpp\0ÎÄ±¾ÎÄ¼ş\0*.txt\0CÔ´ÎÄ¼ş\0*.c\0";
-			//Ä¬ÈÏ¹ıÂËÆ÷Ë÷ÒıÉèÎª1
+			opfn.lStructSize = sizeof(OPENFILENAME);//ç»“æ„ä½“å¤§å°
+			//è®¾ç½®è¿‡æ»¤
+			opfn.lpstrFilter = "C++æºæ–‡ä»¶\0*.cpp\0æ–‡æœ¬æ–‡ä»¶\0*.txt\0Cæºæ–‡ä»¶\0*.c\0";
+			//é»˜è®¤è¿‡æ»¤å™¨ç´¢å¼•è®¾ä¸º1
 			opfn.nFilterIndex = 1;
-			//ÎÄ¼şÃûµÄ×Ö¶Î±ØĞëÏÈ°ÑµÚÒ»¸ö×Ö·ûÉèÎª \0
+			//æ–‡ä»¶åçš„å­—æ®µå¿…é¡»å…ˆæŠŠç¬¬ä¸€ä¸ªå­—ç¬¦è®¾ä¸º \0
 			opfn.lpstrFile = (LPSTR)strFilename;
 			opfn.lpstrFile[0] = '\0';
 			opfn.nMaxFile = sizeof(strFilename);
-			//ÉèÖÃ±êÖ¾Î»£¬¼ì²éÄ¿Â¼»òÎÄ¼şÊÇ·ñ´æÔÚ
+			//è®¾ç½®æ ‡å¿—ä½ï¼Œæ£€æŸ¥ç›®å½•æˆ–æ–‡ä»¶æ˜¯å¦å­˜åœ¨
 			opfn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-			// ÏÔÊ¾¶Ô»°¿òÈÃÓÃ»§Ñ¡ÔñÎÄ¼ş
+			// æ˜¾ç¤ºå¯¹è¯æ¡†è®©ç”¨æˆ·é€‰æ‹©æ–‡ä»¶
 			if (GetOpenFileName(&opfn)) {
-				//ÔÚÎÄ±¾¿òÖĞÏÔÊ¾ÎÄ¼şÂ·¾¶
+				//åœ¨æ–‡æœ¬æ¡†ä¸­æ˜¾ç¤ºæ–‡ä»¶è·¯å¾„
 				HWND hEdt = GetDlgItem(hwnd, IDC_EDIT1);
 				SendMessage(hEdt, WM_SETTEXT, NULL, (LPARAM)strFilename);
 			}
 			break;
 		}
 
-						  //ÎÄ¼ş2ä¯ÀÀ°´Å¥´¥·¢
+						  //æ–‡ä»¶2æµè§ˆæŒ‰é’®è§¦å‘
 		case IDC_BUTTON2: {
-			//ÎÄ¼şÑ¡Ôñ½á¹¹Ìå£¬Í¬°´Å¥1
+			//æ–‡ä»¶é€‰æ‹©ç»“æ„ä½“ï¼ŒåŒæŒ‰é’®1
 			OPENFILENAME opfn;
-			opfn.lpstrTitle = TEXT("ÇëÑ¡ÔñÔ´ÂëÎÄ¼ş");
+			opfn.lpstrTitle = TEXT("è¯·é€‰æ‹©æºç æ–‡ä»¶");
 			WCHAR strFilename[MAX_PATH];
 			ZeroMemory(&opfn, sizeof(OPENFILENAME));
 			opfn.lStructSize = sizeof(OPENFILENAME);
-			opfn.lpstrFilter = "C++Ô´ÎÄ¼ş*.cpp\0*.cpp\0ÎÄ±¾ÎÄ¼ş*txt\0*.txt\0CÔ´ÎÄ¼ş*.c\0*.c\0";
+			opfn.lpstrFilter = "C++æºæ–‡ä»¶*.cpp\0*.cpp\0æ–‡æœ¬æ–‡ä»¶*txt\0*.txt\0Cæºæ–‡ä»¶*.c\0*.c\0";
 			opfn.nFilterIndex = 1;
 			opfn.lpstrFile = (LPSTR)strFilename;
 			opfn.lpstrFile[0] = '\0';

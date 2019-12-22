@@ -1,6 +1,13 @@
+ï»¿/*
+Code Similarity Checker
+Github: https://github.com/UtopiaXC/CodeSimilarityChecker
+IDE Visual Studio 2019 Community
+UtopiaXC Â©2019 All Rights Reserved
+*/
+
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼ş¡£
-// ¹© CodeSimilarityCheckerSystem.rc Ê¹ÓÃ
+// Microsoft Visual C++ ç”Ÿæˆçš„åŒ…å«æ–‡ä»¶ã€‚
+// ä¾› CodeSimilarityCheckerSystem.rc ä½¿ç”¨
 //
 #define IDI_ICON                        105
 #define IDD_MAINSURFACE                 107
