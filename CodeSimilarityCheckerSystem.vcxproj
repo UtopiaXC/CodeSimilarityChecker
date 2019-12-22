@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CodeSimilarityChecker.cpp" />
+    <ClCompile Include="HashMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeSimilarityChecker.h" />

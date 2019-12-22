@@ -23,3 +23,4 @@ UtopiaXC ©2019 All Rights Reserved
 
 //APPLICATION
 #include "resource.h"
+#include "HashMap.cpp"
