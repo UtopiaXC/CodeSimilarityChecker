@@ -161,7 +161,7 @@ void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, str
 	}
 	fout << endl << "保留字向量距离为：" << "," << sqrt(sum1) << endl;
 	fout << "标识符向量距离为：" << "," << sqrt(sum2) << endl;
-	double result = (sqrt(sum1) * 3 + sqrt(sum2)) / 2;
+	double result = (sqrt(sum1) * 3 + sqrt(sum2)) / 4;
 	fout << "综合平均距离为：" << "," << result << endl;
 	fout << "综合平均距离权为：" << "," << "保留字向量/标识符向量=3/1" << endl << endl;
 
