@@ -1,11 +1,4 @@
-﻿/*
-Code Similarity Checker
-Github: https://github.com/UtopiaXC/CodeSimilarityChecker
-IDE Visual Studio 2019 Community
-UtopiaXC ©2019 All Rights Reserved
-*/
-
-//{{NO_DEPENDENCIES}}
+﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ 生成的包含文件。
 // 供 CodeSimilarityCheckerSystem.rc 使用
 //
@@ -16,7 +9,7 @@ UtopiaXC ©2019 All Rights Reserved
 #define IDC_BUTTON1                     1010
 #define IDC_BUTTON2                     1011
 #define IDC_BUTTON_CONFIRM              1012
-#define IDC_BUTTON_CLOSE                1013
+#define IDC_BUTTON_DIY                  1013
 #define IDC_TEXT1                       1016
 #define IDC_BUTTON3                     1017
 

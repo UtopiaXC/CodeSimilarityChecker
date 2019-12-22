@@ -11,7 +11,7 @@ using namespace std;
 
 //全局变量
 const char ClassName[] = "CodeSimilarityChecker";//窗口类名
-string cpp_keywords[48] = {
+string cpp_keywords[100] = {
 "if","int","for","do","new","try",
 "asm","else","char","float","long","void",
 "short","while","double","break","typedef","register",
@@ -21,24 +21,21 @@ string cpp_keywords[48] = {
 "operator","template","enum","private","volatile","this",
 "virtual","case","default","inline","protected","struct"
 };//C++保留字
+int cpp_keywords_count = 48;//已保存的C++保留字总数
 
 string ID_Key[100] = {
-	"int","double","float","void","struct",
-	"class" ,"char", "string", "short",
-	"long" ,"auto","signed", "unsigned",
-	"template","bool" };
-int count_ID_Key = 15;
+	"int","double","float","void" ,"char",
+	"string", "short","long" ,"auto","signed",
+	"unsigned","template","bool" };
+int count_ID_Key = 13;//已保存的可声明标识符的保留字
 
-int cpp_keywords_count = 48;//检查的C++保留字总数
+
 string id[100];//用户标识符
 int id_count = 0;//标识符总数
 HINSTANCE instance;//窗口全局句柄
 
-//函数声明
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);//窗口回调函数
-
 //将将文件分解计入散列表
-HashMap setHashMap(string location, HashMap * hashMap_id) {
+HashMap setHashMap(string location, HashMap* hashMap_id) {
 	//将散列表初始化
 	HashMap hashMap(cpp_keywords, cpp_keywords_count);
 	//入文件流
@@ -51,7 +48,6 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 
 	//标识符上文判断
 	bool isIdentifier = false;
-	bool isSpecialId = false;
 	string identifier[100];
 	int flag = 0;
 	string code;
@@ -70,26 +66,28 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 			//如果不是，则结束该单词
 			else {
 				//判断分隔符号是否为括号来排除函数名
-				if (isIdentifier && (temp == '{' || temp == '(')&&!isSpecialId) {
+				if (isIdentifier && (temp == '{' || temp == '(')) {
 					isIdentifier = false;
 					flag = 0;
 				}
 
 				//判断是否存在标识符上文，存在则将标识符入表
-				if (isIdentifier && word.length() != 0) {
-					hashMap_id->getHash(word);
-					if (hashMap_id->getValue(word) != -1)
-						hashMap_id->setValue(word, hashMap_id->getValue(word) + 1);
-					else {
-						hashMap_id->setHash(word);
-						hashMap_id->setValue(word, 1);
-						bool isInId = false;
-						for (string temp : id) {
-							if (temp == word)
-								isInId = true;
+				if (isIdentifier && word.length() != 0 && count_ID_Key != 0) {
+					int check = hashMap.getValue(word);
+					if (check == -1) {
+						if (hashMap_id->getValue(word) != -1)
+							hashMap_id->setValue(word, hashMap_id->getValue(word) + 1);
+						else {
+							hashMap_id->setHash(word);
+							hashMap_id->setValue(word, 1);
+							bool isInId = false;
+							for (string temp : id) {
+								if (temp == word)
+									isInId = true;
+							}
+							if (!isInId)
+								id[id_count++] = word;
 						}
-						if (!isInId)
-							id[id_count++] = word;
 					}
 				}
 
@@ -104,35 +102,26 @@ HashMap setHashMap(string location, HashMap * hashMap_id) {
 					}
 				}
 
-				bool isNickKey = false;
+
 				//如果单词为特殊保留字，则认为下文为标识符或函数名
 
-				for (string temp:ID_Key) 
-					if (word == temp) {
-						isIdentifier = true;
-						isNickKey = true;
-					}
-					
-				if (word == "struct" || word == "class")
-						isSpecialId = true;
-				
-				
-				else {
+				if (count_ID_Key != 0) {
 					isIdentifier = false;
-					isSpecialId = false;
+					for (int i = 0; i < count_ID_Key; i++)
+						if (word == ID_Key[i])
+							isIdentifier = true;
 				}
+				else
+					isIdentifier = false;
+
 				word = "";
 
 				//如果是分割符号则认为下一单词可能也是标识符
-				if (isIdentifier && (temp == ',' || temp == ' ')&&!isNickKey) {
-					isNickKey = false;
+				if (isIdentifier && (temp == ',' || temp == ' ')) {
 					isIdentifier = true;
 				}
-			
+
 			}
-
-
-
 		}
 	}
 	return hashMap;
@@ -211,52 +200,91 @@ bool function(TCHAR FILE1[], TCHAR FILE2[], TCHAR FILE_SAVE[]) {
 	}
 }
 
-//程序入口
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	WNDCLASSEX wc;
-	HWND hwnd;
-	MSG Msg;
+//自定义配置文件
+int Custom(HWND hwnd) {
+	MessageBox(hwnd, "请确认您的配置文件格式\n您需要用换行或空格分隔您的自定义保留字\n如果保留字可定义标识符，请在关键字后添加\"*\"号\n\"*\"号与保留字之间不要存在空格\n导入的配置将覆盖内置配置文件\n请采用.config（推荐）或.txt格式的配置文件", "警告", 0);
+	//文件选择结构体
+	OPENFILENAME opfn;
+	opfn.lpstrTitle = TEXT("请选择配置文件");
+	TCHAR strFilename[MAX_PATH];//存放文件名
+	//初始化
+	ZeroMemory(&opfn, sizeof(OPENFILENAME));
+	opfn.lStructSize = sizeof(OPENFILENAME);//结构体大小
+	//设置过滤
+	opfn.lpstrFilter = "Config文件\0*.config\0文本文件\0*.txt\0";
+	//默认过滤器索引设为1
+	opfn.nFilterIndex = 1;
+	//文件名的字段必须先把第一个字符设为 \0
+	opfn.lpstrFile = (LPSTR)strFilename;
+	opfn.lpstrFile[0] = '\0';
+	opfn.nMaxFile = sizeof(strFilename);
+	//设置标志位，检查目录或文件是否存在
+	opfn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+	// 显示对话框让用户选择文件
+	if (GetOpenFileName(&opfn)) {
+		//在文本框中显示文件路径
+		fstream fin;
+		fin.open(strFilename);
+		if (!fin)
+			return 3;
 
-	//注册窗体
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = 0;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(hInstance, (LPCSTR)IDI_ICON);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = ClassName;
-	wc.hIconSm = LoadIcon(hInstance, (LPCSTR)IDI_ICON);
-	if (!RegisterClassEx(&wc)) {
-		MessageBox(NULL, "窗体注册失败", "错误！", MB_ICONEXCLAMATION | MB_OK);
-		return 0;
-	}
-	instance = hInstance;
+		string keyword;
+		string temp_keywords[100];
+		int count_temp_keywords = 0;
+		string temp_idKey[100];
+		int count_temp_idKey = 0;
 
-	//创建窗体
-	hwnd = CreateWindowEx(
-		WS_EX_CLIENTEDGE,
-		ClassName,
-		"C++代码相似度检查程序",
-		WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
-		CW_USEDEFAULT, CW_USEDEFAULT, 570, 420,
-		NULL, NULL, hInstance, NULL);
-	if (hwnd == NULL) {
-		MessageBox(NULL, "窗体创建失败", "错误！", MB_ICONEXCLAMATION | MB_OK);
-		return 0;
-	}
-	ShowWindow(hwnd, nCmdShow);
-	UpdateWindow(hwnd);
+		//找到每一个待添加单词
+		while (!fin.eof()) {
+			fin >> keyword;
+			if (keyword.length() == 0)
+				continue;
 
-	//主消息循环  
-	while (GetMessage(&Msg, NULL, 0, 0) > 0) {
-		TranslateMessage(&Msg);
-		DispatchMessage(&Msg);
+			bool isSpecialKey = false;
+
+			//判断该单词是否合法
+			for (int i = 0; i < keyword.length(); i++) {
+				if (isalpha(keyword.at(i)) == 0) {
+					if (i == keyword.length() - 1 && keyword.at(keyword.length() - 1) == '*')
+						isSpecialKey = true;
+					else
+						return 0;
+				}
+			}
+
+			//如果是可定义为标识符的保留字，添加进特殊数组
+			if (isSpecialKey) {
+				keyword.pop_back();
+				temp_idKey[count_temp_idKey++] = keyword;
+				isSpecialKey = false;
+			}
+
+			temp_keywords[count_temp_keywords++] = keyword;
+
+			keyword.clear();
+
+		}
+
+		//如果没有任何关键字，返回格式错
+		if (count_temp_keywords == 0)
+			return 0;
+
+		//将读入的信息同步到全局变量
+		for (int i = 0; i < count_temp_keywords; i++)
+			cpp_keywords[i] = temp_keywords[i];
+
+
+		for (int i = 0; i < count_temp_idKey; i++)
+			ID_Key[i] = temp_idKey[i];
+
+		//将计次信息同步到全局变量
+		cpp_keywords_count = count_temp_keywords;
+		count_ID_Key = count_temp_idKey;
+
+		return 1;
 	}
-	return Msg.wParam;
+
+	return 2;
 }
 
 //回调
@@ -281,12 +309,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 
-			//关闭按钮触发
-		case IDC_BUTTON_CLOSE:
-			PostQuitMessage(0);
-			break;
+			//修改配置文件按钮触发
+		case IDC_BUTTON_DIY: {
+			int result = Custom(hwnd);
+			if (result == 1) {
+				MessageBox(hwnd, "配置文件已生效！", "提醒", 0);
+			}
+			else if (result == 2) {
+				MessageBox(hwnd, "自定义配置文件已取消！", "提醒", 0);
+			}
+			else if (result == 0) {
+				MessageBox(hwnd, "配置文件存在不合法语句，请查证！", "警告", 0);
+			}
+			else {
+				MessageBox(hwnd, "配置文件打开失败，请查证！", "警告", 0);
 
-			//确认按钮触发
+			}
+			break;
+		}
+							 //确认按钮触发
 		case IDC_BUTTON_CONFIRM: {
 			//通过EDIT获得文件地址
 			TCHAR file1[MAX_PATH];
@@ -378,4 +419,52 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
+}
+
+//程序入口
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	WNDCLASSEX wc;
+	HWND hwnd;
+	MSG Msg;
+
+	//注册窗体
+	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.style = 0;
+	wc.lpfnWndProc = WndProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = hInstance;
+	wc.hIcon = LoadIcon(hInstance, (LPCSTR)IDI_ICON);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.lpszMenuName = NULL;
+	wc.lpszClassName = ClassName;
+	wc.hIconSm = LoadIcon(hInstance, (LPCSTR)IDI_ICON);
+	if (!RegisterClassEx(&wc)) {
+		MessageBox(NULL, "窗体注册失败", "错误！", MB_ICONEXCLAMATION | MB_OK);
+		return 0;
+	}
+	instance = hInstance;
+
+	//创建窗体
+	hwnd = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		ClassName,
+		"C++代码相似度检查程序",
+		WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
+		CW_USEDEFAULT, CW_USEDEFAULT, 570, 420,
+		NULL, NULL, hInstance, NULL);
+	if (hwnd == NULL) {
+		MessageBox(NULL, "窗体创建失败", "错误！", MB_ICONEXCLAMATION | MB_OK);
+		return 0;
+	}
+	ShowWindow(hwnd, nCmdShow);
+	UpdateWindow(hwnd);
+
+	//主消息循环  
+	while (GetMessage(&Msg, NULL, 0, 0) > 0) {
+		TranslateMessage(&Msg);
+		DispatchMessage(&Msg);
+	}
+	return Msg.wParam;
 }
