@@ -29,7 +29,6 @@ string ID_Key[100] = {
 	"unsigned","template","bool" };
 int count_ID_Key = 13;//已保存的可声明标识符的保留字
 
-
 string id[100];//用户标识符
 int id_count = 0;//标识符总数
 HINSTANCE instance;//窗口全局句柄
@@ -128,7 +127,7 @@ HashMap setHashMap(string location, HashMap* hashMap_id) {
 }
 
 //将结果报告保存到文件
-void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, string location) {
+void Solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, string location) {
 	int edge1[100];
 	int edge2[100];
 	int sum1 = 0;
@@ -183,7 +182,7 @@ void solve(HashMap hashMap1, HashMap hashMap2, HashMap * id1, HashMap * id2, str
 }
 
 //相似度对比功能函数
-bool function(TCHAR FILE1[], TCHAR FILE2[], TCHAR FILE_SAVE[]) {
+bool Function(TCHAR FILE1[], TCHAR FILE2[], TCHAR FILE_SAVE[]) {
 	try {
 		string location1 = FILE1;
 		string location2 = FILE2;
@@ -192,7 +191,7 @@ bool function(TCHAR FILE1[], TCHAR FILE2[], TCHAR FILE_SAVE[]) {
 		HashMap* hashMap_id2 = new HashMap();
 		HashMap hashMap1 = setHashMap(location1, hashMap_id1);
 		HashMap hashMap2 = setHashMap(location2, hashMap_id2);
-		solve(hashMap1, hashMap2, hashMap_id1, hashMap_id2, save_location);
+		Solve(hashMap1, hashMap2, hashMap_id1, hashMap_id2, save_location);
 		return true;
 	}
 	catch (string error) {
@@ -356,7 +355,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			}
 
 			//检查是否成功保存
-			if (!function(file1, file2, szPathName))
+			if (!Function(file1, file2, szPathName))
 				MessageBox(hwnd, "源码文件打开失败！", "错误！", NULL);
 			else {
 				MessageBox(hwnd, "已导出报告，本报告结论有待考证，请结合表单判断。\n当代码量越大时该报告越准确。", "成功！", NULL);
