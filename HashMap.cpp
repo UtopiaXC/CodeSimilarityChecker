@@ -93,9 +93,4 @@ public:
 		this->value[key] = value;
 	}
 
-	//获取散列表中保存项个数
-	int getCount() {
-		return this->count;
-	}
-
 };
